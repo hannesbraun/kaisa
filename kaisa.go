@@ -3,11 +3,13 @@ package main
 import (
 	"bufio"
 	"encoding/binary"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -15,18 +17,26 @@ const Version = "1.0.0"
 
 func main() {
 	fmt.Println("Kaisa", Version)
-	host := "127.0.0.1"
-	port := 3100
 
-	log.Printf("Connecting to %v:%v", host, port)
-	conn, err := net.Dial("tcp", "127.0.0.1:3100")
+	hostFlag := flag.String("host", "localhost", "SimSpark server host address")
+	portFlag := flag.Uint("port", 3100, "SimSpark server port")
+	withPerception := flag.Bool("with-perception", false, "Print perception to console")
+	flag.Parse()
+	host := *hostFlag
+	port := *portFlag
+
+	simsparkAddress := host + ":" + strconv.Itoa(int(port))
+	log.Println("Connecting to", simsparkAddress)
+	conn, err := net.Dial("tcp", simsparkAddress)
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		log.Println("Connected successfully to ")
+		log.Println("Connected successfully to ", simsparkAddress)
 	}
-	
-	go perception(conn)
+
+	if *withPerception {
+		go perception(conn)
+	}
 
 	stdinScanner := bufio.NewScanner(os.Stdin)
 	var sExp string
@@ -60,7 +70,6 @@ func perception(conn net.Conn) {
 	for {
 		for i := 0; i < 4; i++ {
 			lenRaw, err := reader.ReadByte()
-			fmt.Println(lenRaw)
 			msgLenRaw[i] = lenRaw
 			if err != nil {
 				log.Print(err)
