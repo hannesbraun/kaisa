@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		log.Println("Connected successfully to ", simsparkAddress)
+		log.Println("Connected successfully to", simsparkAddress)
 	}
 
 	if *withPerception {
