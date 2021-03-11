@@ -32,6 +32,7 @@ func main() {
 		log.Fatal(err)
 	} else {
 		log.Println("Connected successfully to", simsparkAddress)
+		defer conn.Close()
 	}
 
 	if *withPerception {
@@ -59,14 +60,12 @@ func main() {
 		conn.Write(msgLen)
 		fmt.Fprint(conn, sExp)
 	}
-
-	conn.Close()
 }
 
 func perception(conn net.Conn) {
 	reader := bufio.NewReader(conn)
 	msgLenRaw := make([]byte, 4)
-	
+
 	for {
 		for i := 0; i < 4; i++ {
 			lenRaw, err := reader.ReadByte()
